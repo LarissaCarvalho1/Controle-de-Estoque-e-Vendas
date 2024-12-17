@@ -1,5 +1,6 @@
-MENU = """-=- Menu serviços -=-
+from time import sleep
 
+MENU = """
 1 - Adicionar Produto
 2 - Atualizar Produto
 3 - Excluir Produto
@@ -14,19 +15,20 @@ Desculpe, a operação selecionada não é válida.
 Tente novamente!
 """
 # Base de dados
-estoque = []
+estoque = [{'nome_produto': 'Celular', 'preco': 1500.00, 'quantidade': 150}]
+vendas = []
 
 # Ponto de entrada no sistema
 def main():
     while True:
-        print('Controle de Estoque')
-        print('--'*20)
+        titulo('CONTROLE DE ESTOQUE')
+        print(f"{'SERVIÇOS DISPONÍVEIS':^50}")
         print(MENU)
-        operacao = input('Escolha um dos serviços disponíveis: ')
+        operacao = input('Escolha um dos serviços: ')
 
         if operacao in ['1', '2', '3', '4','5', '6', '0']:
             if operacao == '0':
-                print('Saindo do sistema...')
+                print('\nSaindo do sistema...\n')
                 break
             else:
                 operacao_selecionada(operacao)
@@ -43,26 +45,27 @@ def operacao_selecionada(operacao):
         elif operacao == '4':
             visualizar_estoque()
         elif operacao == '5':
-            print('Você clicou em Registrar Vendas')
+            registrar_venda()
         elif operacao == '6':
             print('Você clicou em Visualizar Vendas')
         else:
             print('Desculpe, a operação selecionada não é válida. Tente novamente!')
 
 def adicionar_produto():
+    titulo('ADICIONAR NOVO PRODUTO')
     while True:
         nome_produto = str(input('Nome do Produto: ')).strip().capitalize()
 
         for produto in estoque:
             if produto['nome_produto'] == nome_produto:
-                print('Produto já cadastrado no sistema! Utilize a opção de atualizar.')
+                print('\nProduto já cadastrado no sistema! Utilize a opção de atualizar.\n')
                 return
         #Solicita as informações de preco e quantidade
         try:
             preco = float(input('Preço do Produto: '))
             quantidade = int(input('Quantidade em Estoque: '))
         except ValueError:
-            print('ERRO: Digite valores numéricos válidos para preço e quantidade.')
+            print('\nERRO: Digite valores numéricos válidos para preço e quantidade.\n')
             continue
         # Cria e add novo produto ao estoque
         novo_produto = {
@@ -71,68 +74,125 @@ def adicionar_produto():
             'quantidade': quantidade
         }
         estoque.append(novo_produto)
-        print(f'Produto {nome_produto} adicionado com sucesso!')
+        print(f'\nProduto: {nome_produto} adicionado com sucesso!\n')
 
-        resposta = str(input('Deseja cadastrar mais produtos? [S/N]')).upper().strip()
+        while True:
+            resposta = str(input('Deseja cadastrar mais produtos? [S/N] ')).upper().strip()
+            if resposta in ['S', 'N']:
+                break
+            else:
+                print('\nERRO: Escolha apenas [S] ou [N] para prosseguir.\n')
+        
         if resposta == 'N':
             break
 
 def atualizar_produto():
+    titulo('ATUALIZAR PRODUTO')
     while True:
         nome = str(input('Nome do produto a ser atualizado: ')).strip().capitalize()
+        produto_encontrado = None
 
         for produto in estoque:
             if produto['nome_produto'] == nome:
-                try:
-                    novo_preco = float(input('Novo preço do produto: '))
-                    nova_quantidade = int(input('Nova quantidade em estoque: '))
-                    produto['preco'] = novo_preco
-                    produto['quantidade'] = nova_quantidade
-                    print(f'Produto {nome} atualizado com sucesso!')
-                    break
-                except ValueError:
-                    print('ERRO: Preço e quantidade devem ser valores numéricos.')   
-                    continue      
-        else:
-            print('Produto não encontrado!')
+                produto_encontrado = produto
+                break
 
-        resposta = str(input('Deseja atualizar mais produtos? [S/N]')).strip().upper()
+        if not produto_encontrado:
+            print(f'\nProduto {nome} NÃO encontrado no estoque!\n')
+            break
+
+        try:
+            novo_preco = float(input('Novo Preço: '))
+            nova_quantidade = int(input('Nova Quantidade: '))
+            produto_encontrado['preco'] = novo_preco
+            produto_encontrado['quantidade'] = nova_quantidade
+            print(f'\nProduto: {nome} atualizado com SUCESSO!\n')
+        except ValueError:
+            print('\nERRO: Preço e Quantidade devem ser valores numéricos\n')
+            continue
+
+        while True:
+            resposta = str(input('Deseja atualizar mais produtos? [S/N] ')).strip().upper()
+            if resposta in ['S', 'N']:
+                break
+            else:
+                print('\nERRO: Escolha apenas [S] ou [N] para prosseguir.\n')
+        
         if resposta == 'N':
             break
     
 def excluir_produto():
+    titulo('EXCLUIR PRODUTO')
     while True:
         nome = str(input('Nome do produto a ser excluído: ')).strip().capitalize()
 
         for produto in estoque:
-            if produto['nome_produto'] == nome :
+            if produto['nome_produto'] == nome:
                 estoque.remove(produto)
-                print(f'Produto {nome} removido com sucesso!')
+                print(f'\nProduto {nome} removido com sucesso!\n')
                 break
         else:
-            print('Produto não encontrado!')
-
-        resposta = str(input('Deseja excluir mais itens? [S/N]')).strip().upper()
-        if resposta == 'N':
-            break
-    
-def visualizar_estoque():
-        if not estoque:
-            print('Estoque vazio!')
-        else:
-            print('=' * 15,'ESTOQUE', '=' * 15)
-            for produto in estoque:
-                print(f'Produto: {produto['nome_produto']}')
-                print(f'Preço: {produto['preco']:.2f}')
-                print(f'Quantidade: {produto['quantidade']}')
-                print('-=' * 15)
+            print('\nProduto não encontrado!\n')
+            return
 
         while True:
-            resposta = str(input('Pressione Enter para voltar ao menu. ')).strip()
-            if resposta == '':
+            resposta = str(input('Deseja excluir mais itens? [S/N] ')).strip().upper()
+            if resposta in ['S', 'N']:
                 break
-            else:
-                print('ERRO: Entrada inválida! Não digite nada, apenas pressione Enter.')
+            elif resposta != 'S':
+                print('\nERRO: Escolha apenas [S] ou [N] para prosseguir.\n')
+
+        if resposta == 'N':
+            print('\nEncerrando a exclusão de produtos...\n')
+            break
+                
+def visualizar_estoque():
+    titulo('ESTOQUE')
+    if not estoque:
+        print('Estoque vazio!')
+    else:
+        for produto in estoque:
+            print(f'Produto: {produto['nome_produto']}')
+            print(f'Preço: {produto['preco']:.2f}')
+            print(f'Quantidade: {produto['quantidade']}')
+            print('--'*26)
+
+    while True:
+        resposta = str(input('Pressione Enter para voltar ao menu. ')).strip()
+        if resposta == '':
+            break
+        else:
+            print('\nERRO: Não digite nada, apenas pressione Enter.\n')
+
+def registrar_venda():
+    titulo('REGISTRAR VENDA')
+    while True:
+        nome_cliente = str(input('Nome do Cliente: ')).strip()
+        nome_produto_venda = str(input('Produto: ')).strip().capitalize()
+        produto_encontrado = None
+
+        for produto in estoque:
+            if produto['nome_produto'] == nome_produto_venda:
+                produto_encontrado = produto
+                break
+
+        if not produto_encontrado:
+            print(f'Produto: {nome_produto_venda} NÃO encontrado no estoque!')
+            break
+
+        if produto_encontrado['quantidade'] != 0:
+            print(f'No estoque há {produto_encontrado['quantidade']} produto {produto_encontrado['nome_produto']} ')
+            break
+
+
+
+def visualizar_vendas():
+    print('Visualizar vendas')
+
+def titulo(txt):
+    print('--'*26)
+    print(f"|{txt:^50}|")
+    print('--'*26)
 
 main()
 
