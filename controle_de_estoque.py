@@ -11,7 +11,7 @@ MENU = """
 """
 
 # Base de dados
-estoque = [{'nome_produto': 'Celular', 'preco': 1500.00, 'quantidade': 10}]
+estoque = []
 vendas = []
 
 # Inicialização do sistema
@@ -120,7 +120,7 @@ def excluir_produto():
         for produto in estoque:
             if produto['nome_produto'] == nome:
                 estoque.remove(produto)
-                print(f'\nProduto {nome} REMOVIDO com SUCESSO!\n')
+                print(f'\nProduto: {nome} REMOVIDO com SUCESSO!\n')
                 break
         else:
             print('\nProduto não encontrado!\n')
@@ -149,6 +149,10 @@ def registrar_venda():
         nome_cliente = str(input('Nome do Cliente: ')).strip().capitalize()
         nome_produto_venda = str(input('Produto: ')).strip().capitalize()
         produto_encontrado = None
+
+        if nome_cliente == '':
+            mostrar_erro('O nome não pode estar vazio!')
+            continue
 
         # Verifica se o nome_produto_venda digitado pelo usuário faz parte da lista estoque
         for produto in estoque:
