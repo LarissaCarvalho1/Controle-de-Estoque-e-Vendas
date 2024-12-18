@@ -10,10 +10,6 @@ MENU = """
 0 - Sair do Sistema
 """
 
-ERRO = """
-Desculpe, a operação selecionada não é válida.
-Tente novamente!
-"""
 # Base de dados
 estoque = [{'nome_produto': 'Celular', 'preco': 1500.00, 'quantidade': 10}]
 vendas = []
@@ -21,7 +17,7 @@ vendas = []
 # Inicialização do sistema
 def main():
     while True:
-        titulo('CONTROLE DE ESTOQUE')
+        titulo('CONTROLE DE ESTOQUE E VENDAS')
         print(f"{'SERVIÇOS DISPONÍVEIS':^50}")
         print(MENU)
         operacao = input('Escolha um dos serviços: ')
@@ -33,7 +29,7 @@ def main():
             else:
                 operacao_selecionada(operacao)
         else:
-            print(ERRO)
+            mostrar_erro('Operação selecionada não é válida. \nTente novamente!')
 
 def operacao_selecionada(operacao):
         if operacao == '1':
@@ -49,38 +45,40 @@ def operacao_selecionada(operacao):
         elif operacao == '6':
             visualizar_vendas()
         else:
-            print(ERRO)
+            mostrar_erro('Operação selecionada não é válida. \nTente novamente!')
 
 def adicionar_produto():
     titulo('ADICIONAR NOVO PRODUTO')
     while True:
-        nome_produto = str(input('Nome do Produto: ')).strip().capitalize()
+        nome = str(input('Nome do Produto: ')).strip().capitalize()
+
+        if nome == '':
+            print('\nO nome não pode estar vazio!\n')
+            continue
 
         for produto in estoque:
-            if produto['nome_produto'] == nome_produto:
+            if produto['nome_produto'] == nome:
                 print('\nProduto já cadastrado no sistema! \nUtilize a opção ATUALIZAR PRODUTO.\n')
                 return
         try:
             preco = float(input('Preço do Produto: '))
             quantidade = int(input('Quantidade em Estoque: '))
+            if preco <= 0 or quantidade <= 0:
+                mostrar_erro('Preço e quantidade devem ser maior que zero (0)!')
+                continue
         except ValueError:
-            print('\nERRO: Digite valores numéricos válidos para preço e quantidade.\n')
+            mostrar_erro('Digite valores numéricos válidos para preço e quantidade.')
             continue
         novo_produto = {
-            'nome_produto': nome_produto, 
+            'nome_produto': nome, 
             'preco': preco, 
             'quantidade': quantidade
         }
         estoque.append(novo_produto)
-        print(f'\nProduto: {nome_produto} ADICIONADO com SUCESSO!\n')
+        print(f'\nProduto: {nome} ADICIONADO com SUCESSO!\n')
 
-        while True:
-            resposta = str(input('Cadastrar outro produto? [S/N] ')).upper().strip()
-            if resposta in ['S', 'N']:
-                break
-            else:
-                print('\nERRO: Escolha apenas [S] ou [N] para prosseguir.\n')
-        if resposta == 'N':
+        if not confirmar_acao('Cadastrar outro produto?'):
+            pausa()
             break
 
 def atualizar_produto():
@@ -99,20 +97,19 @@ def atualizar_produto():
         try:
             novo_preco = float(input('Novo Preço: '))
             nova_quantidade = int(input('Nova Quantidade: '))
-            produto_encontrado['preco'] = novo_preco
-            produto_encontrado['quantidade'] = nova_quantidade
-            print(f'\nProduto: {nome} ATUALIZADO com SUCESSO!\n')
+            if novo_preco <= 0 or nova_quantidade <= 0:
+                mostrar_erro('Preço e quantidade devem ser maior que zero (0)!')
+                continue
+            else:
+                produto_encontrado['preco'] = novo_preco
+                produto_encontrado['quantidade'] = nova_quantidade
+                print(f'\nProduto: {nome} ATUALIZADO com SUCESSO!\n')
         except ValueError:
-            print('\nERRO: Preço e Quantidade devem ser valores numéricos\n')
+            mostrar_erro('Preço e Quantidade devem ser valores numéricos')
             continue
 
-        while True:
-            resposta = str(input('Atualizar outro produto? [S/N] ')).strip().upper()
-            if resposta in ['S', 'N']:
-                break
-            else:
-                print('\nERRO: Escolha apenas [S] ou [N] para prosseguir.\n')
-        if resposta == 'N':
+        if not confirmar_acao('Atualizar outro produto?'):
+            pausa()
             break
     
 def excluir_produto():
@@ -128,14 +125,9 @@ def excluir_produto():
         else:
             print('\nProduto não encontrado!\n')
             return
-        while True:
-            resposta = str(input('Excluir outro item? [S/N] ')).strip().upper()
-            if resposta in ['S', 'N']:
-                break
-            elif resposta != 'S':
-                print('\nERRO: Escolha apenas [S] ou [N] para prosseguir.\n')
-        if resposta == 'N':
-            print('\nEncerrando a exclusão de produtos...\n')
+        
+        if not confirmar_acao('Excluir outro produto?'):
+            pausa()
             break
                 
 def visualizar_estoque():
@@ -148,6 +140,7 @@ def visualizar_estoque():
             print(f'Preço: {produto['preco']:.2f}')
             print(f'Quantidade: {produto['quantidade']}')
             print('--'*26)
+            pausa()
     aguardar_enter()
 
 def registrar_venda():
@@ -177,25 +170,16 @@ def registrar_venda():
             try:
                 quantidade_compra = int(input('Quantidade de produtos comprados: '))
                 if quantidade_compra <= 0:
-                    print('ERRO: A quantidade deve ser maior que zero.')
+                    mostrar_erro('A quantidade deve ser maior que zero.')
                 elif quantidade_compra > produto_encontrado['quantidade']:
-                    print('ERRO: A quantidade solicitada excede o estoque disponével.')
+                    mostrar_erro('A quantidade solicitada excede o estoque disponével.')
                 else:
                     break
             except ValueError:
-                print('ERRO: Insira um número válido para a quantidade.')
+                mostrar_erro('Insira um número válido para a quantidade.')
                 continue
         
-        # Confirma compra
-        while True:
-            continuar = str(input('Finalizar Compra? [S/N]: ')).strip().upper()
-            if continuar in ['S', 'N']:
-                break
-            else: 
-                print('\nERRO: Escolha apenas [S] ou [N] para prosseguir.\n')
-        
-        # Cria nova venda e adiciona à lista vendas
-        if continuar == 'S':
+        if confirmar_acao('Finalizar Compra?'): 
             produto_encontrado['quantidade'] -= quantidade_compra
             total_compra = produto_encontrado['preco'] * quantidade_compra
             nova_venda = {
@@ -206,10 +190,13 @@ def registrar_venda():
                 'total': total_compra
             }
             vendas.append(nova_venda)
-            print('Compra realizada com SUCESSO!')
+            print('\nCompra realizada com SUCESSO!\n')
         else:
-            print('\nCompra cancelada!')
-        break
+            print('\nCompra cancelada!\n')
+
+        if not confirmar_acao('REGISTRAR outra venda?'):
+            pausa()
+            break
 
 def visualizar_vendas():
     titulo('VENDAS REALIZADAS')
@@ -217,12 +204,13 @@ def visualizar_vendas():
         print('Nenhuma venda realizada!')
     else:
         for venda in vendas:
-            print(f'Cliente: {venda['cliente']}')
-            print(f'Produto: {venda['produto']}')
-            print(f'Preço: {venda['preco']:.2f}')
-            print(f'Quantidade: {venda['quantidade']}')
-            print(f'Total: {venda['total']:.2f}')
+            print(f'Cliente: {venda["cliente"]}')
+            print(f'Produto: {venda["produto"]}')
+            print(f'Preço: {venda["preco"]:.2f}')
+            print(f'Quantidade: {venda["quantidade"]}')
+            print(f'Total: {venda["total"]:.2f}')
             print('--'*26)
+            pausa()
     aguardar_enter()
 
 def titulo(txt):
@@ -236,6 +224,19 @@ def aguardar_enter():
         if resposta == '':
             break
         else:
-            print('\nERRO: Não digite nada, apenas pressione Enter.\n')
+            mostrar_erro('Não digite nada, apenas pressione Enter.')
 
+def mostrar_erro(mensagem):
+    print(f'\nERRO: {mensagem}\n')
+
+def confirmar_acao(mensagem):
+    while True:
+        resposta = str(input(f'{mensagem} [S/N] ')).strip().upper()
+        if resposta in ['S', 'N']:
+            return resposta == 'S'
+
+        mostrar_erro('Escolha apenas [S] ou [N] para prosseguir.')
+
+def pausa():
+    sleep(1)
 main()
