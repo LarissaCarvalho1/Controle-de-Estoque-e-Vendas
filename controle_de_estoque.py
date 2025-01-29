@@ -14,7 +14,7 @@ MENU = """
 estoque = []
 vendas = []
 
-# Inicialização do sistema
+# Ponto de entrada no sistema
 def main():
     while True:
         titulo('CONTROLE DE ESTOQUE E VENDAS')
@@ -31,6 +31,7 @@ def main():
         else:
             mostrar_erro('Operação selecionada não é válida. \nTente novamente!')
 
+# Direcionamento para a função do serviço escolhido
 def operacao_selecionada(operacao):
         if operacao == '1':
             adicionar_produto()
@@ -47,6 +48,7 @@ def operacao_selecionada(operacao):
         else:
             mostrar_erro('Operação selecionada não é válida. \nTente novamente!')
 
+# Adiciona novos produtos
 def adicionar_produto():
     titulo('ADICIONAR NOVO PRODUTO')
     while True:
@@ -81,6 +83,7 @@ def adicionar_produto():
             pausa()
             break
 
+# Atualiza produtos cadastrados
 def atualizar_produto():
     titulo('ATUALIZAR PRODUTO')
     while True:
@@ -111,7 +114,8 @@ def atualizar_produto():
         if not confirmar_acao('Atualizar outro produto?'):
             pausa()
             break
-    
+
+# Exclui produto do sistema    
 def excluir_produto():
     titulo('EXCLUIR PRODUTO')
     while True:
@@ -129,7 +133,8 @@ def excluir_produto():
         if not confirmar_acao('Excluir outro produto?'):
             pausa()
             break
-                
+
+# Visualização do itens em estoque                
 def visualizar_estoque():
     titulo('ESTOQUE')
     if not estoque:
@@ -143,6 +148,7 @@ def visualizar_estoque():
             pausa()
     aguardar_enter()
 
+# Registra Venda
 def registrar_venda():
     titulo('REGISTRAR VENDA')
     while True:
@@ -202,6 +208,7 @@ def registrar_venda():
             pausa()
             break
 
+# Vizualiza vendas
 def visualizar_vendas():
     titulo('VENDAS REALIZADAS')
     if not vendas:
@@ -217,6 +224,7 @@ def visualizar_vendas():
             pausa()
     aguardar_enter()
 
+# Funções para uso geral
 def titulo(txt):
     print('--'*26)
     print(f"|{txt:^50}|")
@@ -243,4 +251,6 @@ def confirmar_acao(mensagem):
 
 def pausa():
     sleep(1)
+##
+
 main()
